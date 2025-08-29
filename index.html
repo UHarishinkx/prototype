@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloatChat - AI-Powered Ocean Intelligence</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            background: linear-gradient(45deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            color: #bae6fd;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1rem;
+            padding: 1rem;
+            height: calc(100vh - 120px);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .map-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .map-header {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .map-header h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 0.8rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        #map {
+            height: calc(100% - 120px);
+            width: 100%;
+        }
+
+        .chat-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 300px);
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.bot {
+            text-align: left;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 0.8rem 1.2rem;
+            border-radius: 20px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .message.bot .message-content {
+            background: rgba(255,255,255,0.2);
+            color: #f0f9ff;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .chat-input-section {
+            padding: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 25px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .chat-input::placeholder {
+            color: #bae6fd;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .quick-questions {
+            margin-top: 1rem;
+        }
+
+        .quick-question {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 0.6rem 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .quick-question:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .typing-indicator {
+            display: none;
+            text-align: left;
+            margin-bottom: 1rem;
+        }
+
+        .typing-indicator .message-content {
+            background: rgba(255,255,255,0.2);
+            color: #f0f9ff;
+        }
+
+        .typing-dots {
+            display: inline-block;
+        }
+
+        .typing-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #60a5fa;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-highlight {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 4px solid #10b981;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 300px 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1><i class="fas fa-water"></i> FloatChat</h1>
+        <p class="tagline">AI-Powered Ocean Intelligence Platform for Indian Waters</p>
+    </header>
+
+    <div class="main-container">
+        <div class="map-section">
+            <div class="map-header">
+                <h2><i class="fas fa-map-marked-alt"></i> Live Ocean Data - Indian Ocean</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number">47</div>
+                        <div>Active Floats</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">28.2°C</div>
+                        <div>Avg Temp</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">34.5‰</div>
+                        <div>Avg Salinity</div>
+                    </div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-header">
+                <h2><i class="fas fa-robot"></i> Ocean Intelligence AI</h2>
+                <p style="font-size: 0.9rem; color: #bae6fd; margin-top: 0.5rem;">
+                    Ask about ocean conditions, weather, or fishing spots
+                </p>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-content">
+                        <strong>🌊 Welcome to FloatChat!</strong><br>
+                        I'm your AI assistant for ocean intelligence across Indian waters. I can help you with:
+                        <div class="feature-highlight">
+                            <strong>🎯 Real-time data</strong> from ARGO floats<br>
+                            <strong>🌡️ Temperature & salinity</strong> conditions<br>
+                            <strong>🎣 Fishing recommendations</strong><br>
+                            <strong>⛵ Marine weather insights</strong>
+                        </div>
+                        Try asking me something below or click a quick question!
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="message-content">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding: 0 1rem;">
+                <div class="quick-questions">
+                    <div class="quick-question" onclick="askQuestion('What is the water temperature near Mumbai today?')">
+                        🌡️ Water temperature near Mumbai?
+                    </div>
+                    <div class="quick-question" onclick="askQuestion('Best fishing spots in Chennai waters?')">
+                        🎣 Best fishing spots in Chennai?
+                    </div>
+                    <div class="quick-question" onclick="askQuestion('Ocean conditions in Kerala coast?')">
+                        🌊 Ocean conditions in Kerala?
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-section">
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Ask about ocean conditions, fishing spots, weather..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        // Fake ARGO Float Data for Indian Ocean
+        const argoData = [
+            {id: 'AR_001', lat: 19.0760, lng: 72.8777, temp: 28.5, salinity: 34.2, location: 'Mumbai Coast', date: '2024-08-29'},
+            {id: 'AR_002', lat: 13.0827, lng: 80.2707, temp: 29.1, salinity: 34.8, location: 'Chennai Coast', date: '2024-08-29'},
+            {id: 'AR_003', lat: 8.5241, lng: 76.9366, temp: 27.8, salinity: 34.1, location: 'Thiruvananthapuram', date: '2024-08-29'},
+            {id: 'AR_004', lat: 15.2993, lng: 74.1240, temp: 28.9, salinity: 34.6, location: 'Goa Coast', date: '2024-08-29'},
+            {id: 'AR_005', lat: 17.6868, lng: 83.2185, temp: 29.3, salinity: 35.1, location: 'Visakhapatnam', date: '2024-08-29'},
+            {id: 'AR_006', lat: 11.9416, lng: 79.8083, temp: 28.7, salinity: 34.4, location: 'Puducherry', date: '2024-08-29'},
+            {id: 'AR_007', lat: 9.9312, lng: 76.2673, temp: 27.9, salinity: 34.0, location: 'Kochi', date: '2024-08-29'},
+            {id: 'AR_008', lat: 21.1702, lng: 72.8311, temp: 28.2, salinity: 34.3, location: 'Gujarat Coast', date: '2024-08-29'},
+            {id: 'AR_009', lat: 12.2958, lng: 76.6394, temp: 28.1, salinity: 34.2, location: 'Mysuru Region', date: '2024-08-29'},
+            {id: 'AR_010', lat: 16.5062, lng: 80.6480, temp: 29.0, salinity: 34.7, location: 'Guntur Coast', date: '2024-08-29'},
+            {id: 'AR_011', lat: 10.8505, lng: 79.8380, temp: 28.4, salinity: 34.3, location: 'Thanjavur Coast', date: '2024-08-29'},
+            {id: 'AR_012', lat: 14.6820, lng: 74.8580, temp: 28.6, salinity: 34.5, location: 'Karnataka Coast', date: '2024-08-29'},
+        ];
+
+        // AI Response Database
+        const responses = {
+            'temperature mumbai': {
+                text: '🌡️ <strong>Mumbai Water Temperature</strong><br>Current: <strong>28.5°C</strong> from Float AR_001<br>📍 Location: 19.08°N, 72.88°E<br>Conditions: Ideal for fishing and water sports!<br><em>Data updated: Today 6:00 PM</em>',
+                floatId: 'AR_001'
+            },
+            'fishing chennai': {
+                text: '🎣 <strong>Chennai Fishing Recommendations</strong><br>🌊 Water temp: 29.1°C - Perfect!<br>🧂 Salinity: 34.8‰ - High nutrient zone<br>⭐ Best spots: Marina Beach offshore, Ennore<br>🕒 Optimal time: Early morning 5-8 AM<br><em>Float AR_002 reports excellent conditions!</em>',
+                floatId: 'AR_002'
+            },
+            'kerala ocean': {
+                text: '🌊 <strong>Kerala Coast Conditions</strong><br>📊 Thiruvananthapuram: 27.8°C<br>📊 Kochi region: 27.9°C<br>🌿 Low salinity indicates fresh water mixing<br>⛵ Calm seas, good for marine activities<br><em>Monitored by Floats AR_003 & AR_007</em>',
+                floatId: 'AR_003'
+            },
+            'default': {
+                text: '🤖 I understand you\'re asking about ocean conditions. Let me provide some relevant information:<br><br>🌊 <strong>Current Ocean Status:</strong><br>• Average temperature: 28.2°C<br>• Average salinity: 34.5‰<br>• 47 active monitoring floats<br><br>For specific locations, try asking about:<br>• Mumbai, Chennai, or Kerala waters<br>• Fishing conditions<br>• Temperature and salinity data',
+                floatId: null
+            }
+        };
+
+        // Initialize Map
+        let map;
+        let markers = [];
+
+        function initMap() {
+            map = L.map('map').setView([15.0, 78.0], 6);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add ARGO float markers
+            argoData.forEach(float => {
+                const marker = L.marker([float.lat, float.lng])
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="font-family: Arial; min-width: 200px;">
+                            <h4 style="color: #0369a1; margin-bottom: 10px;">
+                                <i class="fas fa-broadcast-tower"></i> ${float.id}
+                            </h4>
+                            <p><strong>📍 Location:</strong> ${float.location}</p>
+                            <p><strong>🌡️ Temperature:</strong> ${float.temp}°C</p>
+                            <p><strong>🧂 Salinity:</strong> ${float.salinity}‰</p>
+                            <p><strong>📅 Last Update:</strong> ${float.date}</p>
+                            <hr style="margin: 10px 0;">
+                            <p style="font-size: 0.9em; color: #666;">
+                                <i class="fas fa-satellite"></i> Real-time ARGO Float Data
+                            </p>
+                        </div>
+                    `);
+                
+                markers.push({marker: marker, id: float.id});
+            });
+        }
+
+        // Chat Functions
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, 'user');
+            input.value = '';
+            
+            showTypingIndicator();
+            
+            setTimeout(() => {
+                hideTypingIndicator();
+                const response = generateResponse(message);
+                addMessage(response.text, 'bot');
+                
+                if (response.floatId) {
+                    highlightFloat(response.floatId);
+                }
+            }, 1500);
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = text;
+            
+            messageDiv.appendChild(contentDiv);
+            messagesContainer.appendChild(messageDiv);
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function generateResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('temperature') && lowerMessage.includes('mumbai')) {
+                return responses['temperature mumbai'];
+            }
+            if (lowerMessage.includes('fishing') && lowerMessage.includes('chennai')) {
+                return responses['fishing chennai'];
+            }
+            if (lowerMessage.includes('kerala') || lowerMessage.includes('kochi')) {
+                return responses['kerala ocean'];
+            }
+            if (lowerMessage.includes('temperature') && lowerMessage.includes('chennai')) {
+                return {
+                    text: '🌡️ <strong>Chennai Water Temperature</strong><br>Current: <strong>29.1°C</strong> from Float AR_002<br>📍 Location: Marina Beach area<br>Status: Slightly warm, great for swimming!<br><em>Updated: Aug 29, 2024</em>',
+                    floatId: 'AR_002'
+                };
+            }
+            if (lowerMessage.includes('goa') || lowerMessage.includes('fishing')) {
+                return {
+                    text: '🎣 <strong>Goa Fishing Update</strong><br>🌊 Temperature: 28.9°C<br>🧂 Salinity: 34.6‰<br>🐟 Excellent conditions for Kingfish & Pomfret<br>⛵ Calm seas, perfect for deep sea fishing<br><em>Float AR_004 confirms optimal conditions</em>',
+                    floatId: 'AR_004'
+                };
+            }
+            
+            return responses['default'];
+        }
+
+        function highlightFloat(floatId) {
+            const targetMarker = markers.find(m => m.id === floatId);
+            if (targetMarker) {
+                targetMarker.marker.openPopup();
+                map.setView(targetMarker.marker.getLatLng(), 10);
+            }
+        }
+
+        function askQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Initialize everything when page loads
+        window.onload = function() {
+            initMap();
+        };
+    </script>
+</body>
+</html>
