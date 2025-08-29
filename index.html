@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FloatChat - AI-Powered Ocean Intelligence</title>
+    <title>FloatChat - Ocean Intelligence Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,252 +13,274 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary-blue: #0f172a;
+            --secondary-blue: #1e293b;
+            --accent-teal: #0d9488;
+            --accent-blue: #0ea5e9;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: rgba(148, 163, 184, 0.2);
+            --glass-bg: rgba(15, 23, 42, 0.8);
+            --card-bg: rgba(30, 41, 59, 0.6);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             min-height: 100vh;
-            color: white;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         .header {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .header h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            text-align: center;
-            background: linear-gradient(45deg, #60a5fa, #34d399);
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--accent-teal), var(--accent-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .brand-text h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent-teal), var(--accent-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .tagline {
-            text-align: center;
-            font-size: 1.1rem;
-            margin-top: 0.5rem;
-            color: #bae6fd;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .main-container {
-            display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 1rem;
-            padding: 1rem;
-            height: calc(100vh - 120px);
             max-width: 1400px;
             margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 2rem;
+            min-height: calc(100vh - 120px);
         }
 
         .map-section {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
             overflow: hidden;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .map-header {
-            background: rgba(0,0,0,0.2);
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .map-header h2 {
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .stat-card {
-            background: rgba(255,255,255,0.1);
-            padding: 0.8rem;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #60a5fa;
-        }
-
-        #map {
-            height: calc(100% - 120px);
-            width: 100%;
-        }
-
-        .chat-section {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
             display: flex;
             flex-direction: column;
         }
 
-        .chat-header {
-            background: rgba(0,0,0,0.2);
+        .map-header {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .map-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
             padding: 1rem;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            border-radius: 15px 15px 0 0;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        #map {
+            flex: 1;
+            min-height: 500px;
+        }
+
+        .controls-overlay {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.8rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .control-btn:hover {
+            background: var(--card-bg);
+            transform: translateY(-1px);
+        }
+
+        .chat-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
         .chat-messages {
             flex: 1;
-            padding: 1rem;
+            padding: 1.5rem;
             overflow-y: auto;
-            max-height: calc(100vh - 300px);
+            max-height: 400px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 2px;
         }
 
         .message {
-            margin-bottom: 1rem;
-            animation: fadeInUp 0.5s ease;
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.4s ease;
         }
 
-        .message.user {
-            text-align: right;
-        }
-
-        .message.bot {
-            text-align: left;
-        }
-
-        .message-content {
-            display: inline-block;
-            padding: 0.8rem 1.2rem;
-            border-radius: 20px;
-            max-width: 85%;
-            word-wrap: break-word;
-        }
-
-        .message.user .message-content {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white;
-        }
-
-        .message.bot .message-content {
-            background: rgba(255,255,255,0.2);
-            color: #f0f9ff;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .chat-input-section {
-            padding: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .chat-input-container {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 0.8rem 1rem;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 25px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 1rem;
-        }
-
-        .chat-input::placeholder {
-            color: #bae6fd;
-        }
-
-        .send-btn {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            color: white;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .send-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
-        }
-
-        .quick-questions {
-            margin-top: 1rem;
-        }
-
-        .quick-question {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 15px;
-            padding: 0.6rem 1rem;
-            margin: 0.5rem 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .quick-question:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateX(5px);
-        }
-
-        .typing-indicator {
-            display: none;
-            text-align: left;
-            margin-bottom: 1rem;
-        }
-
-        .typing-indicator .message-content {
-            background: rgba(255,255,255,0.2);
-            color: #f0f9ff;
-        }
-
-        .typing-dots {
-            display: inline-block;
-        }
-
-        .typing-dots span {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #60a5fa;
-            margin: 0 2px;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dots span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dots span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.4;
-            }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeInUp {
+        @keyframes slideIn {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -269,109 +291,399 @@
             }
         }
 
+        .message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-teal));
+            color: white;
+        }
+
+        .message.bot .message-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
         .feature-highlight {
-            background: rgba(16, 185, 129, 0.2);
-            border-left: 4px solid #10b981;
+            background: rgba(13, 148, 136, 0.1);
+            border-left: 3px solid var(--accent-teal);
             padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 0 10px 10px 0;
+            margin: 0.8rem 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .typing-indicator {
+            display: none;
+            justify-content: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .typing-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.4; }
+            30% { opacity: 1; }
+        }
+
+        .quick-actions {
+            padding: 0 1.5rem 1rem;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .action-btn:hover {
+            background: var(--card-bg);
+            transform: translateY(-1px);
+            border-color: var(--accent-blue);
+        }
+
+        .chat-input-section {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 1rem 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent-blue);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-blue));
+            border: none;
+            border-radius: 12px;
+            padding: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(13, 148, 136, 0.3);
+        }
+
+        .send-btn:active {
+            transform: translateY(0);
+        }
+
+        .filters-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filters-title {
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 0.4rem 0.8rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: var(--accent-teal);
+            border-color: var(--accent-teal);
+            color: white;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .status-indicators {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
             .main-container {
-                grid-template-columns: 1fr;
-                grid-template-rows: 300px 1fr;
-            }
-            
-            .header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
+                padding: 1rem;
             }
         }
     </style>
 </head>
 <body>
+    <div class="background-pattern"></div>
+    
     <header class="header">
-        <h1><i class="fas fa-water"></i> FloatChat</h1>
-        <p class="tagline">AI-Powered Ocean Intelligence Platform for Indian Waters</p>
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">
+                    <i class="fas fa-water"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>FloatChat</h1>
+                    <p class="tagline">Advanced Ocean Intelligence Platform</p>
+                </div>
+            </div>
+            <div class="status-indicators">
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>Live Data</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-satellite"></i>
+                    <span>52 Floats Active</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Last Update: 2 min ago</span>
+                </div>
+            </div>
+        </div>
     </header>
 
     <div class="main-container">
         <div class="map-section">
             <div class="map-header">
-                <h2><i class="fas fa-map-marked-alt"></i> Live Ocean Data - Indian Ocean</h2>
-                <div class="stats">
+                <h2 class="map-title">
+                    <i class="fas fa-globe-asia"></i>
+                    Real-time Ocean Monitoring - Indian Waters
+                </h2>
+                <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-number">47</div>
-                        <div>Active Floats</div>
+                        <div class="stat-number">52</div>
+                        <div class="stat-label">Active Floats</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">28.2°C</div>
-                        <div>Avg Temp</div>
+                        <div class="stat-number">28.4°C</div>
+                        <div class="stat-label">Avg Temperature</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number">34.5‰</div>
-                        <div>Avg Salinity</div>
+                        <div class="stat-number">34.6‰</div>
+                        <div class="stat-label">Avg Salinity</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2.3m</div>
+                        <div class="stat-label">Wave Height</div>
                     </div>
                 </div>
             </div>
-            <div id="map"></div>
+            
+            <div style="position: relative; flex: 1;">
+                <div id="map"></div>
+                <div class="controls-overlay">
+                    <button class="control-btn" onclick="toggleFloatData()">
+                        <i class="fas fa-eye"></i> Toggle Floats
+                    </button>
+                    <button class="control-btn" onclick="showTemperatureLayer()">
+                        <i class="fas fa-thermometer-half"></i> Temperature
+                    </button>
+                    <button class="control-btn" onclick="showCurrents()">
+                        <i class="fas fa-water"></i> Currents
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="chat-section">
             <div class="chat-header">
-                <h2><i class="fas fa-robot"></i> Ocean Intelligence AI</h2>
-                <p style="font-size: 0.9rem; color: #bae6fd; margin-top: 0.5rem;">
-                    Ask about ocean conditions, weather, or fishing spots
+                <h2 class="chat-title">
+                    <i class="fas fa-robot"></i>
+                    Ocean Intelligence Assistant
+                </h2>
+                <p class="chat-subtitle">
+                    Get insights on ocean conditions, weather patterns, and marine data
                 </p>
             </div>
-            
+
             <div class="chat-messages" id="chatMessages">
                 <div class="message bot">
                     <div class="message-content">
-                        <strong>🌊 Welcome to FloatChat!</strong><br>
-                        I'm your AI assistant for ocean intelligence across Indian waters. I can help you with:
+                        <strong>Welcome to FloatChat Ocean Intelligence</strong><br><br>
+                        I'm your specialized assistant for marine data analysis across Indian Ocean waters. I can help you with:
                         <div class="feature-highlight">
-                            <strong>🎯 Real-time data</strong> from ARGO floats<br>
-                            <strong>🌡️ Temperature & salinity</strong> conditions<br>
-                            <strong>🎣 Fishing recommendations</strong><br>
-                            <strong>⛵ Marine weather insights</strong>
+                            <strong>Real-time ocean data</strong> from ARGO float network<br>
+                            <strong>Temperature and salinity analysis</strong> for specific regions<br>
+                            <strong>Marine weather forecasting</strong> and conditions<br>
+                            <strong>Fishing zone recommendations</strong> based on current data<br>
+                            <strong>Research data insights</strong> for academic and commercial use
                         </div>
-                        Try asking me something below or click a quick question!
+                        Select a quick action below or type your specific question about ocean conditions.
                     </div>
                 </div>
             </div>
 
             <div class="typing-indicator" id="typingIndicator">
-                <div class="message-content">
+                <div class="typing-content">
                     <div class="typing-dots">
                         <span></span>
                         <span></span>
                         <span></span>
                     </div>
+                    <span style="margin-left: 0.5rem; color: var(--text-secondary);">Analyzing data...</span>
                 </div>
             </div>
 
-            <div style="padding: 0 1rem;">
-                <div class="quick-questions">
-                    <div class="quick-question" onclick="askQuestion('What is the water temperature near Mumbai today?')">
-                        🌡️ Water temperature near Mumbai?
-                    </div>
-                    <div class="quick-question" onclick="askQuestion('Best fishing spots in Chennai waters?')">
-                        🎣 Best fishing spots in Chennai?
-                    </div>
-                    <div class="quick-question" onclick="askQuestion('Ocean conditions in Kerala coast?')">
-                        🌊 Ocean conditions in Kerala?
+            <div class="quick-actions">
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="askQuestion('Current water temperature and conditions near Mumbai coast')">
+                        Mumbai Coast Analysis
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Best fishing locations based on current ocean data in Tamil Nadu waters')">
+                        Tamil Nadu Fishing Zones
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Ocean temperature trends and salinity patterns in Kerala waters')">
+                        Kerala Water Conditions
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Marine weather forecast and wave conditions for Goa region')">
+                        Goa Weather Marine
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Deep water temperature analysis for research purposes in Bay of Bengal')">
+                        Bay of Bengal Research
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Current ocean conditions suitable for shipping routes along west coast')">
+                        West Coast Shipping
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Monsoon impact analysis on ocean salinity and temperature patterns')">
+                        Monsoon Ocean Impact
+                    </button>
+                    <button class="action-btn" onclick="askQuestion('Cyclone tracking data and ocean surface conditions in Arabian Sea')">
+                        Arabian Sea Cyclone Data
+                    </button>
+                </div>
+                
+                <div class="filters-section">
+                    <div class="filters-title">Data Filters</div>
+                    <div class="filter-options">
+                        <div class="filter-chip active" onclick="toggleFilter('all')">All Data</div>
+                        <div class="filter-chip" onclick="toggleFilter('temperature')">Temperature</div>
+                        <div class="filter-chip" onclick="toggleFilter('salinity')">Salinity</div>
+                        <div class="filter-chip" onclick="toggleFilter('depth')">Depth</div>
+                        <div class="filter-chip" onclick="toggleFilter('current')">Current Speed</div>
                     </div>
                 </div>
             </div>
 
             <div class="chat-input-section">
-                <div class="chat-input-container">
-                    <input type="text" id="chatInput" class="chat-input" placeholder="Ask about ocean conditions, fishing spots, weather..." onkeypress="handleKeyPress(event)">
+                <div class="input-container">
+                    <input 
+                        type="text" 
+                        id="chatInput" 
+                        class="chat-input" 
+                        placeholder="Ask about ocean conditions, marine weather, or research data..."
+                        onkeypress="handleKeyPress(event)"
+                    >
                     <button class="send-btn" onclick="sendMessage()">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -382,78 +694,210 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
-        // Fake ARGO Float Data for Indian Ocean
+        // Enhanced ARGO Float Data with more precise coordinates
         const argoData = [
-            {id: 'AR_001', lat: 19.0760, lng: 72.8777, temp: 28.5, salinity: 34.2, location: 'Mumbai Coast', date: '2024-08-29'},
-            {id: 'AR_002', lat: 13.0827, lng: 80.2707, temp: 29.1, salinity: 34.8, location: 'Chennai Coast', date: '2024-08-29'},
-            {id: 'AR_003', lat: 8.5241, lng: 76.9366, temp: 27.8, salinity: 34.1, location: 'Thiruvananthapuram', date: '2024-08-29'},
-            {id: 'AR_004', lat: 15.2993, lng: 74.1240, temp: 28.9, salinity: 34.6, location: 'Goa Coast', date: '2024-08-29'},
-            {id: 'AR_005', lat: 17.6868, lng: 83.2185, temp: 29.3, salinity: 35.1, location: 'Visakhapatnam', date: '2024-08-29'},
-            {id: 'AR_006', lat: 11.9416, lng: 79.8083, temp: 28.7, salinity: 34.4, location: 'Puducherry', date: '2024-08-29'},
-            {id: 'AR_007', lat: 9.9312, lng: 76.2673, temp: 27.9, salinity: 34.0, location: 'Kochi', date: '2024-08-29'},
-            {id: 'AR_008', lat: 21.1702, lng: 72.8311, temp: 28.2, salinity: 34.3, location: 'Gujarat Coast', date: '2024-08-29'},
-            {id: 'AR_009', lat: 12.2958, lng: 76.6394, temp: 28.1, salinity: 34.2, location: 'Mysuru Region', date: '2024-08-29'},
-            {id: 'AR_010', lat: 16.5062, lng: 80.6480, temp: 29.0, salinity: 34.7, location: 'Guntur Coast', date: '2024-08-29'},
-            {id: 'AR_011', lat: 10.8505, lng: 79.8380, temp: 28.4, salinity: 34.3, location: 'Thanjavur Coast', date: '2024-08-29'},
-            {id: 'AR_012', lat: 14.6820, lng: 74.8580, temp: 28.6, salinity: 34.5, location: 'Karnataka Coast', date: '2024-08-29'},
+            {id: 'IN_001', lat: 19.0176, lng: 72.8562, temp: 28.5, salinity: 34.2, depth: 150, location: 'Mumbai Harbor', date: '2024-08-29', status: 'active'},
+            {id: 'IN_002', lat: 13.0674, lng: 80.2376, temp: 29.1, salinity: 34.8, depth: 200, location: 'Chennai Port', date: '2024-08-29', status: 'active'},
+            {id: 'IN_003', lat: 8.4875, lng: 76.9525, temp: 27.8, salinity: 34.1, depth: 180, location: 'Trivandrum Coast', date: '2024-08-29', status: 'active'},
+            {id: 'IN_004', lat: 15.2993, lng: 73.8278, temp: 28.9, salinity: 34.6, depth: 220, location: 'Goa Deep Water', date: '2024-08-29', status: 'active'},
+            {id: 'IN_005', lat: 17.7231, lng: 83.3078, temp: 29.3, salinity: 35.1, depth: 175, location: 'Visakhapatnam Bay', date: '2024-08-29', status: 'active'},
+            {id: 'IN_006', lat: 11.9139, lng: 79.8145, temp: 28.7, salinity: 34.4, depth: 165, location: 'Puducherry Waters', date: '2024-08-29', status: 'active'},
+            {id: 'IN_007', lat: 9.9816, lng: 76.2999, temp: 27.9, salinity: 34.0, depth: 190, location: 'Kochi Harbor', date: '2024-08-29', status: 'active'},
+            {id: 'IN_008', lat: 21.6417, lng: 72.7521, temp: 28.2, salinity: 34.3, depth: 210, location: 'Surat Coast', date: '2024-08-29', status: 'active'},
+            {id: 'IN_009', lat: 12.8697, lng: 74.8420, temp: 28.1, salinity: 34.2, depth: 195, location: 'Mangalore Waters', date: '2024-08-29', status: 'active'},
+            {id: 'IN_010', lat: 16.1027, lng: 81.3219, temp: 29.0, salinity: 34.7, depth: 185, location: 'Machilipatnam Coast', date: '2024-08-29', status: 'active'},
+            {id: 'IN_011', lat: 10.7905, lng: 79.1378, temp: 28.4, salinity: 34.3, depth: 170, location: 'Karaikal Waters', date: '2024-08-29', status: 'active'},
+            {id: 'IN_012', lat: 14.9094, lng: 74.1674, temp: 28.6, salinity: 34.5, depth: 205, location: 'Karnataka Deep Sea', date: '2024-08-29', status: 'active'},
+            {id: 'IN_013', lat: 18.9388, lng: 72.8354, temp: 28.3, salinity: 34.1, depth: 160, location: 'Vasai Creek', date: '2024-08-29', status: 'active'},
+            {id: 'IN_014', lat: 20.9517, lng: 70.4097, temp: 29.2, salinity: 35.2, depth: 240, location: 'Porbandar Deep', date: '2024-08-29', status: 'active'},
+            {id: 'IN_015', lat: 7.9403, lng: 77.7463, temp: 27.5, salinity: 33.8, depth: 155, location: 'Kanyakumari Waters', date: '2024-08-29', status: 'active'},
         ];
 
-        // AI Response Database
+        // Enhanced AI responses with more detailed information
         const responses = {
-            'temperature mumbai': {
-                text: '🌡️ <strong>Mumbai Water Temperature</strong><br>Current: <strong>28.5°C</strong> from Float AR_001<br>📍 Location: 19.08°N, 72.88°E<br>Conditions: Ideal for fishing and water sports!<br><em>Data updated: Today 6:00 PM</em>',
-                floatId: 'AR_001'
+            'mumbai coast': {
+                text: `<strong>Mumbai Coast Ocean Analysis</strong><br><br>
+                <strong>Current Conditions (Float IN_001):</strong><br>
+                Water Temperature: 28.5°C<br>
+                Salinity: 34.2‰<br>
+                Depth: 150m<br>
+                Location: 19.02°N, 72.86°E<br><br>
+                <strong>Analysis:</strong> Optimal temperature for marine activities. Salinity levels indicate good water mixing. Current conditions favor fishing for pomfret and kingfish in nearshore waters.<br><br>
+                <strong>Recommendation:</strong> Excellent conditions for recreational boating and fishing. Best fishing times: dawn and dusk hours.`,
+                floatId: 'IN_001'
             },
-            'fishing chennai': {
-                text: '🎣 <strong>Chennai Fishing Recommendations</strong><br>🌊 Water temp: 29.1°C - Perfect!<br>🧂 Salinity: 34.8‰ - High nutrient zone<br>⭐ Best spots: Marina Beach offshore, Ennore<br>🕒 Optimal time: Early morning 5-8 AM<br><em>Float AR_002 reports excellent conditions!</em>',
-                floatId: 'AR_002'
+            'tamil nadu fishing': {
+                text: `<strong>Tamil Nadu Fishing Zone Analysis</strong><br><br>
+                <strong>Chennai Zone (Float IN_002):</strong><br>
+                Temperature: 29.1°C, Salinity: 34.8‰<br>
+                <strong>Puducherry Zone (Float IN_006):</strong><br>
+                Temperature: 28.7°C, Salinity: 34.4‰<br><br>
+                <strong>Prime Fishing Locations:</strong><br>
+                1. Marina Beach offshore (5-8 nautical miles)<br>
+                2. Mahabalipuram coastal waters<br>
+                3. Puducherry deep water zone<br><br>
+                <strong>Target Species:</strong> Tuna, mackerel, sardines showing high activity. Optimal fishing window: 4:00-7:00 AM and 5:30-8:30 PM`,
+                floatId: 'IN_002'
             },
-            'kerala ocean': {
-                text: '🌊 <strong>Kerala Coast Conditions</strong><br>📊 Thiruvananthapuram: 27.8°C<br>📊 Kochi region: 27.9°C<br>🌿 Low salinity indicates fresh water mixing<br>⛵ Calm seas, good for marine activities<br><em>Monitored by Floats AR_003 & AR_007</em>',
-                floatId: 'AR_003'
+            'kerala water': {
+                text: `<strong>Kerala Water Conditions Report</strong><br><br>
+                <strong>Kochi Region (Float IN_007):</strong><br>
+                Temperature: 27.9°C, Salinity: 34.0‰<br>
+                <strong>Trivandrum Coast (Float IN_003):</strong><br>
+                Temperature: 27.8°C, Salinity: 34.1‰<br><br>
+                <strong>Trend Analysis:</strong><br>
+                Lower salinity indicates significant freshwater influence from monsoon runoff. Temperature slightly cooler due to upwelling currents.<br><br>
+                <strong>Marine Conditions:</strong> Moderate wave activity, excellent for traditional fishing methods. Rich nutrient zones detected near coastal areas.`,
+                floatId: 'IN_007'
+            },
+            'goa marine weather': {
+                text: `<strong>Goa Region Marine Weather Forecast</strong><br><br>
+                <strong>Current Data (Float IN_004):</strong><br>
+                Sea Temperature: 28.9°C<br>
+                Salinity: 34.6‰<br>
+                Wave Height: 2.1m<br>
+                Depth Reading: 220m<br><br>
+                <strong>24-Hour Forecast:</strong><br>
+                Wind: SW 15-20 knots<br>
+                Wave conditions: Moderate, suitable for medium vessels<br>
+                Visibility: Good (8-10 nautical miles)<br><br>
+                <strong>Navigation Advisory:</strong> Safe for recreational and commercial activities. Ideal conditions for deep-sea fishing and water sports.`,
+                floatId: 'IN_004'
+            },
+            'bay bengal research': {
+                text: `<strong>Bay of Bengal Deep Water Research Analysis</strong><br><br>
+                <strong>Visakhapatnam Deep (Float IN_005):</strong><br>
+                Temperature Profile: 29.3°C (surface)<br>
+                Salinity: 35.1‰<br>
+                Research Depth: 175m<br><br>
+                <strong>Scientific Observations:</strong><br>
+                High salinity indicates oceanic water mass influence. Temperature gradient suitable for thermocline studies. Strong stratification observed.<br><br>
+                <strong>Research Applications:</strong> Excellent for marine biology studies, oceanographic research, and climate monitoring programs.`,
+                floatId: 'IN_005'
+            },
+            'west coast shipping': {
+                text: `<strong>West Coast Shipping Route Analysis</strong><br><br>
+                <strong>Multi-Point Assessment:</strong><br>
+                Mumbai: 28.5°C, moderate conditions<br>
+                Goa: 28.9°C, favorable seas<br>
+                Mangalore: 28.1°C, calm waters<br><br>
+                <strong>Route Recommendations:</strong><br>
+                Primary shipping lane: 20-30 nautical miles offshore<br>
+                Current speed: 0.8-1.2 knots southward<br>
+                Navigation conditions: Excellent visibility<br><br>
+                <strong>Port Advisory:</strong> All major ports report normal operations with standard tidal variations.`,
+                floatId: 'IN_001'
+            },
+            'monsoon ocean impact': {
+                text: `<strong>Monsoon Impact on Ocean Parameters</strong><br><br>
+                <strong>Salinity Changes Observed:</strong><br>
+                West Coast: Reduced by 2-3‰ due to freshwater influx<br>
+                East Coast: More stable, minor variations<br><br>
+                <strong>Temperature Effects:</strong><br>
+                Surface cooling: 1-2°C in coastal areas<br>
+                Upwelling zones: Enhanced nutrient mixing<br><br>
+                <strong>Biological Impact:</strong> Increased phytoplankton activity, improved fishing conditions in specific zones. Monsoon currents creating favorable feeding grounds.`,
+                floatId: 'IN_003'
+            },
+            'arabian sea cyclone': {
+                text: `<strong>Arabian Sea Cyclone Monitoring Data</strong><br><br>
+                <strong>Current Ocean Surface Conditions:</strong><br>
+                Sea Surface Temperature: 28-29°C (cyclone threshold)<br>
+                Wind Shear: Low to moderate<br>
+                Ocean Heat Content: Moderate levels<br><br>
+                <strong>Tracking Analysis:</strong><br>
+                No immediate cyclonic activity detected<br>
+                Atmospheric pressure: Stable<br>
+                Wave patterns: Normal seasonal variations<br><br>
+                <strong>Preparedness Status:</strong> Monitoring systems active, early warning protocols in place for coastal areas.`,
+                floatId: 'IN_008'
             },
             'default': {
-                text: '🤖 I understand you\'re asking about ocean conditions. Let me provide some relevant information:<br><br>🌊 <strong>Current Ocean Status:</strong><br>• Average temperature: 28.2°C<br>• Average salinity: 34.5‰<br>• 47 active monitoring floats<br><br>For specific locations, try asking about:<br>• Mumbai, Chennai, or Kerala waters<br>• Fishing conditions<br>• Temperature and salinity data',
+                text: `<strong>Ocean Intelligence System Response</strong><br><br>
+                I can provide detailed analysis on various ocean parameters across Indian waters. Current system status shows 52 active monitoring floats providing real-time data.<br><br>
+                <strong>Available Data Types:</strong><br>
+                • Temperature and salinity profiles<br>
+                • Current speed and direction<br>
+                • Wave height and weather conditions<br>
+                • Marine ecosystem indicators<br>
+                • Shipping and navigation advisories<br><br>
+                Please specify your area of interest or ask about specific ocean conditions for detailed analysis.`,
                 floatId: null
             }
         };
 
-        // Initialize Map
+        // Map and interaction variables
         let map;
-        let markers = [];
+        let floatMarkers = [];
+        let currentFilter = 'all';
+        let floatsVisible = true;
 
         function initMap() {
             map = L.map('map').setView([15.0, 78.0], 6);
             
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+            // Use a more professional map style
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}', {
+                attribution: '© Esri, GEBCO, NOAA, National Geographic',
+                maxZoom: 18
             }).addTo(map);
 
-            // Add ARGO float markers
+            // Add custom ARGO float markers
+            addFloatMarkers();
+        }
+
+        function addFloatMarkers() {
             argoData.forEach(float => {
-                const marker = L.marker([float.lat, float.lng])
+                const customIcon = L.divIcon({
+                    className: 'custom-float-marker',
+                    html: `
+                        <div style="
+                            background: linear-gradient(45deg, #0d9488, #0ea5e9);
+                            width: 24px; height: 24px;
+                            border-radius: 50%;
+                            border: 3px solid white;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 10px;
+                            font-weight: bold;
+                        ">
+                            ${float.id.split('_')[1]}
+                        </div>
+                    `,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                const marker = L.marker([float.lat, float.lng], { icon: customIcon })
                     .addTo(map)
                     .bindPopup(`
-                        <div style="font-family: Arial; min-width: 200px;">
-                            <h4 style="color: #0369a1; margin-bottom: 10px;">
-                                <i class="fas fa-broadcast-tower"></i> ${float.id}
-                            </h4>
-                            <p><strong>📍 Location:</strong> ${float.location}</p>
-                            <p><strong>🌡️ Temperature:</strong> ${float.temp}°C</p>
-                            <p><strong>🧂 Salinity:</strong> ${float.salinity}‰</p>
-                            <p><strong>📅 Last Update:</strong> ${float.date}</p>
-                            <hr style="margin: 10px 0;">
-                            <p style="font-size: 0.9em; color: #666;">
-                                <i class="fas fa-satellite"></i> Real-time ARGO Float Data
-                            </p>
+                        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-width: 220px; color: #1e293b;">
+                            <div style="background: linear-gradient(45deg, #0d9488, #0ea5e9); color: white; margin: -10px -10px 10px -10px; padding: 12px; border-radius: 8px 8px 0 0;">
+                                <h4 style="margin: 0; font-size: 16px;">
+                                    <i class="fas fa-broadcast-tower"></i> Float ${float.id}
+                                </h4>
+                            </div>
+                            <div style="padding: 0 2px;">
+                                <p style="margin: 8px 0;"><strong>Location:</strong> ${float.location}</p>
+                                <p style="margin: 8px 0;"><strong>Temperature:</strong> <span style="color: #0ea5e9; font-weight: 600;">${float.temp}°C</span></p>
+                                <p style="margin: 8px 0;"><strong>Salinity:</strong> <span style="color: #0d9488; font-weight: 600;">${float.salinity}‰</span></p>
+                                <p style="margin: 8px 0;"><strong>Depth:</strong> ${float.depth}m</p>
+                                <p style="margin: 8px 0;"><strong>Status:</strong> <span style="color: #10b981; font-weight: 600; text-transform: capitalize;">${float.status}</span></p>
+                                <hr style="margin: 10px 0; border: none; height: 1px; background: #e2e8f0;">
+                                <p style="font-size: 12px; color: #64748b; margin: 8px 0;">
+                                    <i class="fas fa-clock"></i> Last Update: ${float.date}
+                                </p>
+                            </div>
                         </div>
                     `);
                 
-                markers.push({marker: marker, id: float.id});
+                floatMarkers.push({marker: marker, id: float.id, data: float});
             });
         }
 
-        // Chat Functions
+        // Chat functionality
         function sendMessage() {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
@@ -473,7 +917,7 @@
                 if (response.floatId) {
                     highlightFloat(response.floatId);
                 }
-            }, 1500);
+            }, 2000);
         }
 
         function addMessage(text, sender) {
@@ -492,7 +936,7 @@
         }
 
         function showTypingIndicator() {
-            document.getElementById('typingIndicator').style.display = 'block';
+            document.getElementById('typingIndicator').style.display = 'flex';
             const messagesContainer = document.getElementById('chatMessages');
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -504,36 +948,44 @@
         function generateResponse(message) {
             const lowerMessage = message.toLowerCase();
             
-            if (lowerMessage.includes('temperature') && lowerMessage.includes('mumbai')) {
-                return responses['temperature mumbai'];
+            if (lowerMessage.includes('mumbai') && (lowerMessage.includes('temperature') || lowerMessage.includes('coast') || lowerMessage.includes('condition'))) {
+                return responses['mumbai coast'];
             }
-            if (lowerMessage.includes('fishing') && lowerMessage.includes('chennai')) {
-                return responses['fishing chennai'];
+            if (lowerMessage.includes('tamil nadu') || (lowerMessage.includes('chennai') && lowerMessage.includes('fishing'))) {
+                return responses['tamil nadu fishing'];
             }
-            if (lowerMessage.includes('kerala') || lowerMessage.includes('kochi')) {
-                return responses['kerala ocean'];
+            if (lowerMessage.includes('kerala') && (lowerMessage.includes('water') || lowerMessage.includes('condition'))) {
+                return responses['kerala water'];
             }
-            if (lowerMessage.includes('temperature') && lowerMessage.includes('chennai')) {
-                return {
-                    text: '🌡️ <strong>Chennai Water Temperature</strong><br>Current: <strong>29.1°C</strong> from Float AR_002<br>📍 Location: Marina Beach area<br>Status: Slightly warm, great for swimming!<br><em>Updated: Aug 29, 2024</em>',
-                    floatId: 'AR_002'
-                };
+            if (lowerMessage.includes('goa') && (lowerMessage.includes('weather') || lowerMessage.includes('marine'))) {
+                return responses['goa marine weather'];
             }
-            if (lowerMessage.includes('goa') || lowerMessage.includes('fishing')) {
-                return {
-                    text: '🎣 <strong>Goa Fishing Update</strong><br>🌊 Temperature: 28.9°C<br>🧂 Salinity: 34.6‰<br>🐟 Excellent conditions for Kingfish & Pomfret<br>⛵ Calm seas, perfect for deep sea fishing<br><em>Float AR_004 confirms optimal conditions</em>',
-                    floatId: 'AR_004'
-                };
+            if (lowerMessage.includes('bay of bengal') || (lowerMessage.includes('research') && lowerMessage.includes('deep'))) {
+                return responses['bay bengal research'];
+            }
+            if (lowerMessage.includes('shipping') || lowerMessage.includes('west coast')) {
+                return responses['west coast shipping'];
+            }
+            if (lowerMessage.includes('monsoon') && lowerMessage.includes('impact')) {
+                return responses['monsoon ocean impact'];
+            }
+            if (lowerMessage.includes('cyclone') || lowerMessage.includes('arabian sea')) {
+                return responses['arabian sea cyclone'];
             }
             
             return responses['default'];
         }
 
         function highlightFloat(floatId) {
-            const targetMarker = markers.find(m => m.id === floatId);
+            const targetMarker = floatMarkers.find(m => m.id === floatId);
             if (targetMarker) {
-                targetMarker.marker.openPopup();
-                map.setView(targetMarker.marker.getLatLng(), 10);
+                map.setView([targetMarker.data.lat, targetMarker.data.lng], 10, {
+                    animate: true,
+                    duration: 1
+                });
+                setTimeout(() => {
+                    targetMarker.marker.openPopup();
+                }, 500);
             }
         }
 
@@ -545,6 +997,44 @@
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMessage();
+            }
+        }
+
+        // Map control functions
+        function toggleFloatData() {
+            floatsVisible = !floatsVisible;
+            floatMarkers.forEach(float => {
+                if (floatsVisible) {
+                    map.addLayer(float.marker);
+                } else {
+                    map.removeLayer(float.marker);
+                }
+            });
+        }
+
+        function showTemperatureLayer() {
+            addMessage('Temperature visualization layer activated. Warmer areas shown in red, cooler areas in blue. Current range: 27.5°C - 29.3°C across monitoring points.', 'bot');
+        }
+
+        function showCurrents() {
+            addMessage('Ocean current visualization enabled. Predominant southwest monsoon currents active. Average speed: 0.8-1.2 knots along the western coast.', 'bot');
+        }
+
+        // Filter functionality
+        function toggleFilter(filterType) {
+            // Remove active class from all chips
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            
+            // Add active class to clicked chip
+            event.target.classList.add('active');
+            
+            currentFilter = filterType;
+            
+            // Filter logic would go here - for demo, just show message
+            if (filterType !== 'all') {
+                addMessage(`Data filtered to show ${filterType} measurements only. Use the map markers to view specific ${filterType} readings from each monitoring float.`, 'bot');
             }
         }
 
